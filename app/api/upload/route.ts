@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/adminAuth";
 import cloudinary from "@/lib/cloudinary";
@@ -5,7 +6,7 @@ import cloudinary from "@/lib/cloudinary";
 export const config = { api: { bodyParser: false } };
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error } = requireAdmin(req);
   if (error) return error;
 
   try {

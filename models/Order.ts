@@ -1,9 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IOrder extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId?: mongoose.Types.ObjectId;
   items: {
-    productId: mongoose.Types.ObjectId;
+    productId?: mongoose.Types.ObjectId;
     name: string;
     image: string;
     size: string;
@@ -11,7 +11,7 @@ export interface IOrder extends Document {
     qty: number;
     price: number;
   }[];
-  shippingAddress: {
+  shippingAddress?: {
     fullName: string;
     phoneNumber: string;
     addressLine1: string;
@@ -22,11 +22,10 @@ export interface IOrder extends Document {
     country: string;
     deliveryNotes?: string;
   };
-  paymentMethod: "razorpay" | "whatsapp";
-  razorpayOrderId?: string;
-  razorpayPaymentId?: string;
+  paymentMethod: "whatsapp" | "cod" | "bank_transfer";
   status: "Processing" | "Shipped" | "Delivered" | "Cancelled";
   totalAmount: number;
+  notes?: string;
   createdAt: Date;
 }
 
@@ -44,26 +43,30 @@ const OrderSchema: Schema = new Schema({
     },
   ],
   shippingAddress: {
-    fullName: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
-    addressLine1: { type: String, required: true },
+    fullName: String,
+    phoneNumber: String,
+    addressLine1: String,
     addressLine2: String,
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    postalCode: { type: String, required: true },
-    country: { type: String, required: true },
+    city: String,
+    state: String,
+    postalCode: String,
+    country: String,
     deliveryNotes: String,
   },
-  paymentMethod: { type: String, enum: ["razorpay", "whatsapp"], required: true },
-  razorpayOrderId: String,
-  razorpayPaymentId: String,
+  paymentMethod: {
+    type: String,
+    enum: ["whatsapp", "cod", "bank_transfer"],
+    default: "whatsapp",
+  },
   status: {
     type: String,
     enum: ["Processing", "Shipped", "Delivered", "Cancelled"],
     default: "Processing",
   },
   totalAmount: { type: Number, required: true },
+  notes: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
+export default mongoose.models.Order ||
+  mongoose.model<IOrder>("Order", OrderSchema);

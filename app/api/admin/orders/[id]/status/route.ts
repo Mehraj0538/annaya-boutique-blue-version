@@ -8,7 +8,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const { error } = await requireAdmin(req);
+  const { error } = requireAdmin(req);
   if (error) return error;
 
   try {

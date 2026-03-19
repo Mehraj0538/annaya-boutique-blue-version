@@ -1,10 +1,11 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { requireAdmin } from "@/lib/adminAuth";
 import Order from "@/models/Order";
 
 export async function GET(req: NextRequest) {
-  const { error } = await requireAdmin(req);
+  const { error } = requireAdmin(req);
   if (error) return error;
 
   try {

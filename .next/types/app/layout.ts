@@ -1,4 +1,4 @@
-// File: D:\Project\annaya_nextjs\app\layout.tsx
+// File: D:\Project\annaya-boutique-blue-version\app\layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation";
 import { Navbar, MobileBottomNav } from "@/components/layout/Navigation";
 import { Footer } from "@/components/layout/Footer";
-import { AuthSyncManager } from "@/components/AuthSyncManager";
 import ScrollToTop from "@/components/ScrollToTop";
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
@@ -15,7 +14,7 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
       <ScrollToTop />
       {!isAdmin && <Navbar />}
       <main className={!isAdmin ? "pt-16" : ""}>
-        <AuthSyncManager>{children}</AuthSyncManager>
+        {children}
       </main>
       {!isAdmin && <MobileBottomNav />}
       {!isAdmin && <Footer />}

@@ -4,12 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { ShoppingBag, Heart, User, Search, Home, Grid, X, Loader2 } from "lucide-react";
+import { ShoppingBag, Heart, Search, Home, Grid, X, Loader2 } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { cn } from "@/lib/utils";
-import { useAuth0 } from "@auth0/auth0-react";
-import { useUserStore } from "@/store/useUserStore";
 import api from "@/lib/api";
 
 function useSearch() {
@@ -74,7 +72,10 @@ function ResultsPanel({ query, results, loading, showPanel, onProductClick, onVi
         {loading ? (
           <div className="flex items-center justify-center gap-2 py-10 text-slate-400 text-sm"><Loader2 className="w-5 h-5 animate-spin" />Searching…</div>
         ) : results.length === 0 ? (
-          <div className="py-12 text-center text-slate-400 text-sm"><Search className="w-10 h-10 mx-auto mb-3 text-slate-200" />No products found for <span className="font-semibold text-slate-600">"{query}"</span></div>
+          <div className="py-12 text-center text-slate-400 text-sm">
+            <Search className="w-10 h-10 mx-auto mb-3 text-slate-200" />
+            No products found for <span className="font-semibold text-slate-600">"{query}"</span>
+          </div>
         ) : (
           <div className="divide-y divide-slate-50">
             {results.map((product) => (
@@ -92,7 +93,9 @@ function ResultsPanel({ query, results, loading, showPanel, onProductClick, onVi
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="text-sm font-bold text-royal">₹{product.price as number}</p>
-                  {(product.originalPrice as number) > (product.price as number) && <p className="text-[10px] text-slate-400 line-through">₹{product.originalPrice as number}</p>}
+                  {(product.originalPrice as number) > (product.price as number) && (
+                    <p className="text-[10px] text-slate-400 line-through">₹{product.originalPrice as number}</p>
+                  )}
                 </div>
               </button>
             ))}
@@ -111,10 +114,11 @@ function ResultsPanel({ query, results, loading, showPanel, onProductClick, onVi
 }
 
 export function Navbar() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  
   const itemCount = useCartStore((s) => s.getItemCount());
   const wishCount = useWishlistStore((s) => s.wishlist.length);
-  const { loginWithRedirect, isAuthenticated, user } = useAuth0();
-  const role = useUserStore((s) => s.role);
   const { query, setQuery, results, loading, open, setOpen, close, handleSubmit, handleProductClick, showPanel } = useSearch();
   const desktopInputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
@@ -165,24 +169,12 @@ export function Navbar() {
             </button>
             <Link href="/wishlist" className="p-2 text-white hover:bg-white/10 rounded-full transition-colors relative">
               <Heart className="w-5 h-5" />
-              {wishCount > 0 && <span className="absolute top-1 right-1 bg-gold text-royal text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{wishCount}</span>}
+              {mounted && wishCount > 0 && <span className="absolute top-1 right-1 bg-gold text-royal text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{wishCount}</span>}
             </Link>
             <Link href="/cart" className="p-2 text-white hover:bg-white/10 rounded-full transition-colors relative">
               <ShoppingBag className="w-5 h-5" />
-              {itemCount > 0 && <span className="absolute top-1 right-1 bg-gold text-royal text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{itemCount}</span>}
+              {mounted && itemCount > 0 && <span className="absolute top-1 right-1 bg-gold text-royal text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{itemCount}</span>}
             </Link>
-            {isAuthenticated && role === "admin" && (
-              <Link href="/admin" className="hidden sm:flex p-2 text-white hover:bg-white/10 rounded-full transition-colors items-center gap-2">
-                <span className="text-xs font-bold tracking-widest uppercase bg-gold text-royal px-2 py-1 rounded-md">Admin</span>
-              </Link>
-            )}
-            {isAuthenticated ? (
-              <Link href="/profile" className="p-2 text-white hover:bg-white/10 rounded-full transition-colors">
-                {user?.picture ? <img src={user.picture} alt={user.name} className="w-6 h-6 rounded-full border border-white/20" /> : <User className="w-5 h-5" />}
-              </Link>
-            ) : (
-              <button onClick={() => loginWithRedirect()} className="p-2 text-white hover:bg-white/10 rounded-full transition-colors"><User className="w-5 h-5" /></button>
-            )}
           </div>
         </div>
 
@@ -203,16 +195,17 @@ export function Navbar() {
 }
 
 export function MobileBottomNav() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  
   const pathname = usePathname();
   const itemCount = useCartStore((s) => s.getItemCount());
-  const { loginWithRedirect, isAuthenticated } = useAuth0();
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
     { icon: Grid, label: "Shop", path: "/products" },
     { icon: ShoppingBag, label: "Cart", path: "/cart", badge: itemCount },
     { icon: Heart, label: "Wishlist", path: "/wishlist" },
-    { icon: User, label: "Profile", path: "/profile" },
   ];
 
   return (
@@ -221,11 +214,10 @@ export function MobileBottomNav() {
         const isActive = pathname === item.path;
         return (
           <Link key={item.path} href={item.path}
-            onClick={(e) => { if (item.label === "Profile" && !isAuthenticated) { e.preventDefault(); loginWithRedirect(); } }}
             className={cn("flex flex-col items-center p-2 min-w-[64px] transition-colors", isActive ? "text-gold" : "text-white/60")}>
             <div className="relative">
               <item.icon className="w-5 h-5 mb-1" />
-              {item.badge !== undefined && item.badge > 0 && (
+              {mounted && item.badge !== undefined && item.badge > 0 && (
                 <span className="absolute -top-1 -right-1 bg-gold text-royal text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">{item.badge}</span>
               )}
             </div>

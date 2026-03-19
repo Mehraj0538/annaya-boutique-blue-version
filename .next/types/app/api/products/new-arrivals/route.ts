@@ -1,4 +1,4 @@
-// File: D:\Project\annaya_nextjs\app\api\products\new-arrivals\route.ts
+// File: D:\Project\annaya-boutique-blue-version\app\api\products\new-arrivals\route.ts
 import * as entry from '../../../../../../app/api/products/new-arrivals/route.js'
 import type { NextRequest } from 'next/server.js'
 

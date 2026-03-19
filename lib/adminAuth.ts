@@ -1,22 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "./mongodb";
-import User from "@/models/User";
 
-export async function requireAdmin(req: NextRequest) {
-  const auth0Id =
-    req.headers.get("x-auth0-id") ||
-    req.nextUrl.searchParams.get("auth0Id");
+/**
+ * Lightweight admin guard.
+ * Checks the x-admin-key header against the ADMIN_SECRET_KEY env var.
+ * No Auth0, no database lookup.
+ *
+ * Usage in route handlers:
+ *   const { error } = requireAdmin(req);
+ *   if (error) return error;
+ */
+export function requireAdmin(req: NextRequest): { error?: NextResponse } {
+  const secret = process.env.ADMIN_SECRET_KEY;
 
-  if (!auth0Id) {
-    return { error: NextResponse.json({ message: "Unauthorized – No Auth0 ID" }, { status: 401 }) };
+  if (!secret) {
+    console.error("ADMIN_SECRET_KEY is not configured.");
+    return {
+      error: NextResponse.json(
+        { message: "Server misconfiguration." },
+        { status: 500 }
+      ),
+    };
   }
 
-  await connectDB();
-  const user = await User.findOne({ auth0Id });
+  const provided =
+    req.headers.get("x-admin-key") ??
+    req.nextUrl.searchParams.get("adminKey") ??
+    "";
 
-  if (!user || user.role !== "admin") {
-    return { error: NextResponse.json({ message: "Forbidden – Admin access required" }, { status: 403 }) };
+  if (provided !== secret) {
+    return {
+      error: NextResponse.json({ message: "Unauthorized" }, { status: 401 }),
+    };
   }
 
-  return { user };
+  return {};
 }
