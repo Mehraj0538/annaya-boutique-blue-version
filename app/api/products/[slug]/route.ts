@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 import { requireAdmin } from "@/lib/adminAuth";
-import { queryProductsJSON } from "@/lib/jsonDb";
 
 // Cache individual product responses for 1 hour at the edge
 export const revalidate = 3600;
@@ -16,11 +15,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
   const { slug } = await params;
   try {
     await connectDB();
-    if (mongoose.connection.readyState !== 1) {
-      const product = await queryProductsJSON({ slug });
-      if (!product) return NextResponse.json({ message: `Product not found: ${slug}` }, { status: 404 });
-      return NextResponse.json(product, { headers: CACHE_HEADERS });
-    }
+
     const product = await Product.findOne({ slug });
     if (!product) return NextResponse.json({ message: `Product not found: ${slug}` }, { status: 404 });
     return NextResponse.json(product, { headers: CACHE_HEADERS });

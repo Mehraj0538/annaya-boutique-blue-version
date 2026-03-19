@@ -17,8 +17,8 @@ export default function WishlistPage() {
     const fetchWishlist = async () => {
       if (wishlist.length === 0) { setLoading(false); return; }
       try {
-        const res = await api.get("/api/products");
-        setProducts(res.data.filter((p: Record<string, unknown>) => wishlist.includes(p._id as string)));
+        const res = await api.post("/api/products/by-ids", { ids: wishlist });
+        setProducts(res.data);
       } catch { /* ignore */ }
       finally { setLoading(false); }
     };

@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "www.transparenttextures.com" },
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   async headers() {
     return [

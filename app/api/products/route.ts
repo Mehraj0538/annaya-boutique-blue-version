@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 import { requireAdmin } from "@/lib/adminAuth";
-import { queryProductsJSON } from "@/lib/jsonDb";
 
 export const revalidate = 60;
 
@@ -18,18 +17,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    if (mongoose.connection.readyState !== 1) {
-      const products = await queryProductsJSON({
-        category,
-        sort,
-        search,
-        minPrice: minPrice ? Number(minPrice) : undefined,
-        maxPrice: maxPrice ? Number(maxPrice) : undefined,
-      });
-      return NextResponse.json(products, {
-        headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
-      });
-    }
+
 
     let query: Record<string, unknown> = {};
 
@@ -68,7 +56,7 @@ export async function GET(req: NextRequest) {
 
     const products = await Product.find(query).sort(sortQuery);
     return NextResponse.json(products, {
-      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
+      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600" },
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Unknown error";

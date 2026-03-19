@@ -1,4 +1,4 @@
-"use client";
+export const dynamic = "force-static";
 
 import Link from "next/link";
 import { Shield, Truck, RefreshCw, Heart } from "lucide-react";

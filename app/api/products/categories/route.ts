@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
-import { getCategoriesFromJSON } from "@/lib/jsonDb";
 
 export const revalidate = 60;
 
@@ -10,12 +9,6 @@ export async function GET() {
   try {
     await connectDB();
 
-    if (mongoose.connection.readyState !== 1) {
-      const categories = await getCategoriesFromJSON();
-      return NextResponse.json(categories, {
-        headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
-      });
-    }
 
     const priorityCategories = [
       { name: "Lehenga", static: "/Red Lehenga Image.png" },

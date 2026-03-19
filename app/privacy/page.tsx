@@ -1,4 +1,4 @@
-"use client";
+export const dynamic = "force-static";
 
 import Link from "next/link";
 import ShellLayout from "@/components/ShellLayout";
